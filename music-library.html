@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Digitalized Sortable Music Library — project report by Samuel Shaw.">
+  <meta name="theme-color" content="#faf9f7">
+  <title>Digitalized Sortable Music Library — Samuel Shaw</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23faf9f7'/%3E%3Cpath d='M18 20c4-5 22-5 27 0M18 44c5 5 22 5 28-1M19 20c0 10 26 4 26 16 0 4-4 7-9 8' fill='none' stroke='%238ba2ba' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header report-header">
+    <a class="brand" href="index.html" aria-label="Return to Samuel Shaw portfolio">SS<span>.</span></a>
+    <a class="back-link" href="index.html#projects">← Back to projects</a>
+  </header>
+  <main class="report-page">
+    <section class="report-hero">
+      <p class="section-number">Project report / Web application</p>
+      <h1>Digitalized Sortable<br><span>Music Library</span></h1>
+      <p class="report-lead">This project took a spreadsheet and turned it into an interactive website to sort and view music.</p>
+      <img src="music-library.png" alt="Music Library interface with filters and sortable sheet-music records">
+    </section>
+    <section class="report-body">
+      <aside>
+        <div class="report-fact">
+          <p class="date">Focus</p>
+          <p>Data migration<br>Full-stack development<br>Database design</p>
+        </div>
+        <div class="report-fact">
+          <p class="date">What I learned</p>
+          <p>Python<br>SQL<br>Linked lists<br>Front-end development</p>
+        </div>
+      </aside>
+      <article>
+        <p class="section-number">Overview</p>
+        <h2>From spreadsheet to searchable library.</h2>
+        <p>The goal of this project was to digitize a school music library that had previously been managed through a spreadsheet. The finished application makes the collection easier to explore by allowing users to find and sort music by collection, title, composer, and other useful information.</p>
+        <p>I built software to parse the spreadsheet’s existing data and convert it into a structured music-library database. This process gave me practical experience working with SQL and data structures, including linked lists, while also developing the front end used to browse and view the collection.</p>
+        <p>Turning the spreadsheet into a useful application required more than transferring rows into a new format. I had to consider how compositions, composers, collections, and related details should connect so that the information could be stored consistently and retrieved efficiently. The resulting structure supports both broad browsing and more focused searches without losing the detail contained in the original records.</p>
+        <p>I also worked across the full path from data processing to the user interface. That meant preparing the source information in Python, designing and querying the SQL database, building the endpoints that connect the application to its data, and presenting the results in a clear, sortable library. Working through each layer helped me understand how decisions made in the database affect both back-end logic and the experience of the person using the site.</p>
+      </article>
+    </section>
+    <section class="report-body report-development">
+      <aside><p class="date">Development experience</p></aside>
+      <article>
+        <p class="section-number">Working full stack</p>
+        <h2>Solving problems across the system.</h2>
+        <p>In this position, I worked one-on-one with a University of Toronto computer science graduate and gained hands-on experience coding in Python across both front-end and back-end development. The experience strengthened my approach to problem-solving as I worked through complex requirements and developed practical solutions.</p>
+        <div class="challenge-callout">
+          <p class="date">A memorable challenge</p>
+          <h3>Creating the compositions endpoint</h3>
+          <p>One of the most memorable problems I solved was building the endpoint used to create compositions. The hardest part was determining whether a composition already existed. That check required querying multiple database tables and comparing related records across them.</p>
+          <p>With guidance from my mentor, I developed a workaround for the logic problem and completed the endpoint. It was a valuable lesson in breaking a difficult problem into smaller checks, understanding relationships between data, and refining a solution through collaboration.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+  <footer><span>© <span id="year"></span> Samuel Shaw</span><a href="index.html">Portfolio</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
