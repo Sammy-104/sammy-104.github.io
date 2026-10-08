@@ -1,0 +1,19 @@
+{
+  "name": "samuel-shaw-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal portfolio for Samuel Shaw — Mechatronics Engineering student, technology leader, lifeguard, and musician.",
+  "author": "Samuel Shaw",
+  "license": "UNLICENSED",
+  "homepage": "https://samuelshaw.ca",
+  "keywords": [
+    "portfolio",
+    "personal-website",
+    "static-site"
+  ],
+  "scripts": {
+    "dev": "npx --yes serve .",
+    "start": "npx --yes serve .",
+    "build": "echo \"Static site — no build step required.\""
+  }
+}
