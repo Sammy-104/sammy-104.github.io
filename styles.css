@@ -144,3 +144,8 @@ body{background:#d9dcd4;background-image:none;isolation:isolate}
  .project-desktop-library .process-window .notes-list{display:block}
  .project-desktop-library .process-window .notes-list li{margin:14px 0}
 }
+
+.caption-toolbar,
+.caption-status {
+  display: none !important;
+}
