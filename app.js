@@ -128,7 +128,7 @@
     const path = rawPath === '/projects/vollo' ? '/projects/drift' : rawPath;
     let page = 'home';
     let html;
-    let title = 'Samuel Shaw';
+    let title = 'Samuel Shaw | Mechatronics Engineering at Waterloo';
     if (path === '/') html = home();
     else if (path === '/about') { page = 'about'; html = about(); title = 'About — Samuel Shaw'; }
     else if (path === '/projects') { page = 'projects'; html = projects(); title = 'Projects — Samuel Shaw'; }
