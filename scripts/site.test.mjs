@@ -1,0 +1,95 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import { build, root, loadPages, documentFor } from './build.mjs';
+
+build();
+const { pages, config } = loadPages();
+const expected = {
+  '/': 'Studying Mechatronics Engineering',
+  '/about/': 'Making the tallest tower',
+  '/projects/': 'Digital Music Library',
+  '/projects/vollo/': 'Let the receiver accept or decline',
+  '/projects/library/': 'Bring music library records'
+};
+test('every direct URL contains its content, unique metadata, and working asset paths without JavaScript', () => {
+  const titles = new Set(), descriptions = new Set();
+  for (const route of pages.routes) {
+    const html = fs.readFileSync(new URL(route.slice(1) + 'index.html', root), 'utf8');
+    const result = pages.render(config, route);
+    assert.equal(html, documentFor(result));
+    assert.ok(html.includes(expected[route]), route);
+    assert.match(html, /<h1\b/);
+    assert.equal((html.match(/<main\b/g) || []).length, 1);
+    assert.ok(html.includes('href="https://samuelshaw.ca' + route + '"'));
+    assert.ok(!html.includes('href="#/'));
+    for (const [, href] of html.matchAll(/href="(\/[^\"]*)"/g)) {
+      if (href.endsWith('/')) assert.ok(pages.routes.includes(href), href);
+    }
+    for (const [, asset] of html.matchAll(/(?:src|poster)="([^\"]+)"/g)) {
+      assert.ok(asset.startsWith('/'), asset);
+      assert.ok(fs.existsSync(new URL(asset.slice(1).split('?')[0], root)), asset);
+    }
+    titles.add(result.title); descriptions.add(result.description);
+  }
+  assert.equal(titles.size, 5); assert.equal(descriptions.size, 5);
+});
+test('unknown routes have an error document and are excluded from the sitemap', () => {
+  assert.equal(pages.render(config, '/does-not-exist/').notFound, true);
+  assert.match(fs.readFileSync(new URL('404.html', root), 'utf8'), /content="noindex"/);
+  const sitemap = fs.readFileSync(new URL('sitemap.xml', root), 'utf8');
+  assert.equal((sitemap.match(/<loc>/g) || []).length, 5);
+  assert.ok(!sitemap.includes('#'));
+  assert.ok(!sitemap.includes('404'));
+});
+
+function browser(pathname, hash = '') {
+  const listeners = { document: {}, window: {}, main: {} };
+  const main = { innerHTML: '', dataset: {}, focus() {}, addEventListener(n, fn) { (listeners.main[n] ||= []).push(fn); } };
+  const nav = ['home', 'about', 'projects'].map(name => ({ dataset: { nav: name }, setAttribute(k, v) { this[k] = v; }, removeAttribute(k) { delete this[k]; } }));
+  const metadata = { description: {}, canonical: {} };
+  const location = { pathname, hash, search: '', origin: 'https://samuelshaw.ca', get href() { return this.origin + this.pathname + this.search + this.hash; }, replace(path) { this.replaced = path; } };
+  const stack = [];
+  function move(_, __, path) { const url = new URL(path, location.origin); Object.assign(location, { pathname: url.pathname, search: url.search, hash: url.hash }); }
+  const context = vm.createContext({ URL, location, history: { replaceState: move, pushState(...args) { stack.push(location.pathname); move(...args); } }, localStorage: { getItem: () => null }, document: {
+    querySelector(s) { return s === 'main' ? main : s.includes('description') ? metadata.description : s.includes('canonical') ? metadata.canonical : null; },
+    querySelectorAll: () => nav,
+    addEventListener(n, fn) { listeners.document[n] = fn; }
+  }, window: { scrollTo() {}, addEventListener(n, fn) { listeners.window[n] = fn; } } });
+  context.window.PortfolioPages = pages;
+  vm.runInContext(fs.readFileSync(new URL('content.js', root), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(new URL('app.js', root), 'utf8'), context);
+  return { context, location, main, nav, metadata, listeners, stack };
+}
+test('browser loads nested routes and migrates legacy hash links including Drift alias', () => {
+  for (const route of pages.routes) {
+    const b = browser(route);
+    assert.ok(b.main.innerHTML.includes(expected[route]), route);
+    assert.equal(b.metadata.canonical.href, 'https://samuelshaw.ca' + route);
+  }
+  for (const [hash, path] of [['#/about', '/about/'], ['#/projects/vollo', '/projects/vollo/'], ['#/projects/drift', '/projects/vollo/'], ['#/', '/']]) {
+    const b = browser('/', hash);
+    assert.equal(b.location.pathname, path); assert.equal(b.location.hash, '');
+    assert.ok(b.main.innerHTML.includes(expected[path]));
+  }
+});
+test('normal navigation and Back update content, metadata and active tab; modified and skip clicks stay native', () => {
+  const b = browser('/');
+  function click(href, extra = {}) {
+    const link = { href: new URL(href, b.location.origin).href, target: '', hasAttribute: () => false };
+    const event = { button: 0, target: { closest: () => link }, preventDefault() { this.prevented = true; }, ...extra };
+    b.listeners.document.click(event); return event;
+  }
+  assert.ok(click('/projects/vollo/').prevented);
+  assert.equal(b.location.pathname, '/projects/vollo/');
+  assert.match(b.context.document.title, /Vollo/);
+  assert.equal(b.nav.find(n => n.dataset.nav === 'projects')['aria-current'], 'page');
+  assert.ok(!click('/about/', { ctrlKey: true }).prevented);
+  assert.ok(!click('/projects/', { button: 1 }).prevented);
+  assert.ok(!click('#main').prevented);
+  assert.ok(!click('https://github.com/Sammy-104').prevented);
+  b.location.pathname = b.stack.pop(); b.listeners.window.popstate();
+  assert.ok(b.main.innerHTML.includes(expected['/']));
+  assert.equal(b.metadata.canonical.href, 'https://samuelshaw.ca/');
+});

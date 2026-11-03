@@ -12,8 +12,9 @@
     "static-site"
   ],
   "scripts": {
-    "dev": "npx --yes serve .",
-    "start": "npx --yes serve .",
-    "build": "echo \"Static site — no build step required.\""
+    "dev": "npm run build && npx --yes serve .",
+    "start": "npm run build && npx --yes serve .",
+    "build": "node scripts/build.mjs",
+    "test": "node --test scripts/site.test.mjs"
   }
 }
