@@ -150,5 +150,13 @@
     lightbox.querySelector('button').addEventListener('click', () => lightbox.close());
     lightbox.addEventListener('click', event => { if (event.target === lightbox) lightbox.close(); });
   }
-  if (!migrateHash()) render();
+  if (!migrateHash()) {
+    const path = normalizePath(location.pathname);
+    const hasSavedCaptions = path === '/about/' && Object.keys(captionEdits).length > 0;
+    if (main.dataset.route === path && !hasSavedCaptions) {
+      initial = false;
+    } else {
+      render();
+    }
+  }
 })();

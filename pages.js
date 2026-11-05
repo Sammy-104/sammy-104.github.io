@@ -35,7 +35,10 @@
   function mediaWindow(title, item, className = '', kind = 'photo') {
     let content;
     if (item?.type === 'image' && item.src) {
-      content = `<figure class="media-figure"><button class="media-image-link" type="button" data-full-image="${escape(item.src)}" aria-label="Open image full size: ${escape(item.alt || item.title || title)}"><img src="${escape(item.src)}" alt="${escape(item.alt || '')}" loading="lazy" decoding="async"><span class="image-open-hint">open full size &#8599;</span></button>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
+      const responsive = item.preview
+        ? ` srcset="${escape(item.preview)} 720w, ${escape(item.src)} ${item.width}w" sizes="(max-width: 720px) calc(100vw - 52px), 370px" width="${item.width}" height="${item.height}"`
+        : '';
+      content = `<figure class="media-figure"><button class="media-image-link" type="button" data-full-image="${escape(item.src)}" aria-label="Open image full size: ${escape(item.alt || item.title || title)}"><img src="${escape(item.src)}"${responsive} alt="${escape(item.alt || '')}" loading="lazy" decoding="async"><span class="image-open-hint">open full size &#8599;</span></button>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
     } else if (item?.type === 'video' && item.src) {
       content = `<figure class="media-figure"><video controls preload="metadata" ${item.poster ? `poster="${escape(item.poster)}"` : ''}><source src="${escape(item.src)}" type="video/mp4">Your browser cannot play this video.</video>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
     } else {
@@ -92,7 +95,7 @@
     else if (path === '/about') { page = 'about'; html = about(); title = 'About — Samuel Shaw'; }
     else if (path === '/projects') { page = 'projects'; html = projects(); title = 'Projects — Samuel Shaw'; }
     else if (path.startsWith('/projects/') && Object.hasOwn(config.projects, path.split('/')[2]) && path.split('/').length === 3) {
-      page = 'projects'; const id = path.split('/')[2]; html = detail(id); title = `${config.projects[id].name} — Samuel Shaw`;
+      page = 'projects'; const id = path.split('/')[2]; html = detail(id); title = id === 'drift' ? 'Vollo File Sharing App | Samuel Shaw' : 'Digital Music Library and Sheet Music Catalogue | Samuel Shaw';
     } else { notFound = true; title = 'Page not found | Samuel Shaw'; html = `<div class="page-heading"><h1>that tab is <em>missing.</em></h1><p>Let's get you back to somewhere familiar.</p><a class="button" href="/">back home →</a></div>`; }
 
     const descriptions = {

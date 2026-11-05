@@ -44,15 +44,19 @@ test('unknown routes have an error document and are excluded from the sitemap', 
   assert.ok(!sitemap.includes('404'));
 });
 
-function browser(pathname, hash = '') {
+function browser(pathname, hash = '', { prerendered = false, savedCaptions = null } = {}) {
   const listeners = { document: {}, window: {}, main: {} };
   const main = { innerHTML: '', dataset: {}, focus() {}, addEventListener(n, fn) { (listeners.main[n] ||= []).push(fn); } };
+  let htmlWrites = 0;
+  let html = prerendered ? pages.render(config, pathname).html : '';
+  if (prerendered) main.dataset.route = pages.normalizePath(pathname);
+  Object.defineProperty(main, 'innerHTML', { get: () => html, set(value) { html = value; htmlWrites++; } });
   const nav = ['home', 'about', 'projects'].map(name => ({ dataset: { nav: name }, setAttribute(k, v) { this[k] = v; }, removeAttribute(k) { delete this[k]; } }));
   const metadata = { description: {}, canonical: {} };
   const location = { pathname, hash, search: '', origin: 'https://samuelshaw.ca', get href() { return this.origin + this.pathname + this.search + this.hash; }, replace(path) { this.replaced = path; } };
   const stack = [];
   function move(_, __, path) { const url = new URL(path, location.origin); Object.assign(location, { pathname: url.pathname, search: url.search, hash: url.hash }); }
-  const context = vm.createContext({ URL, location, history: { replaceState: move, pushState(...args) { stack.push(location.pathname); move(...args); } }, localStorage: { getItem: () => null }, document: {
+  const context = vm.createContext({ URL, location, history: { replaceState: move, pushState(...args) { stack.push(location.pathname); move(...args); } }, localStorage: { getItem: () => savedCaptions }, document: {
     querySelector(s) { return s === 'main' ? main : s.includes('description') ? metadata.description : s.includes('canonical') ? metadata.canonical : null; },
     querySelectorAll: () => nav,
     addEventListener(n, fn) { listeners.document[n] = fn; }
@@ -60,8 +64,17 @@ function browser(pathname, hash = '') {
   context.window.PortfolioPages = pages;
   vm.runInContext(fs.readFileSync(new URL('content.js', root), 'utf8'), context);
   vm.runInContext(fs.readFileSync(new URL('app.js', root), 'utf8'), context);
-  return { context, location, main, nav, metadata, listeners, stack };
+  return { context, location, main, nav, metadata, listeners, stack, htmlWrites };
 }
+test('first load keeps static content unless a legacy bookmark or saved caption needs rendering', () => {
+  assert.equal(browser('/projects/vollo/', '', { prerendered: true }).htmlWrites, 0);
+  const legacy = browser('/', '#/projects/vollo', { prerendered: true });
+  assert.equal(legacy.htmlWrites, 1);
+  assert.match(legacy.main.innerHTML, /Let the receiver accept or decline/);
+  const about = browser('/about/', '', { prerendered: true, savedCaptions: JSON.stringify({ 0: { caption: 'My saved caption' } }) });
+  assert.equal(about.htmlWrites, 1);
+  assert.match(about.main.innerHTML, /My saved caption/);
+});
 test('browser loads nested routes and migrates legacy hash links including Drift alias', () => {
   for (const route of pages.routes) {
     const b = browser(route);

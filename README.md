@@ -6,7 +6,7 @@ Static HTML, CSS, and JavaScript. The repository root is the published website. 
 
 - Home: introduction and recent projects.
 - About: seven photos with editable captions saved in the visitor’s browser and a JSON export.
-- Projects: Digital Music Library and Vollo, with screenshots and the Vollo demo video.
+- Projects: [Digital Music Library](https://samuelshaw.ca/projects/library/) and [Vollo](https://samuelshaw.ca/projects/vollo/), with screenshots and the Vollo demo video.
 - Background: pixel mountains with a cursor-following sun behind the terrain, dynamic lighting and clouds. OffscreenCanvas runs in a worker when supported, with a compatibility fallback, hidden-page pause, and reduced-motion support.
 
 Use `npm run dev` to regenerate pages and start a local HTTP server. Public URLs are `/`, `/about/`, `/projects/`, `/projects/library/`, and `/projects/vollo/`. Each URL has a complete HTML document, title, description, canonical URL, and crawlable navigation. Existing `/#/...` links migrate to the matching clean URL in the browser. Navigation uses the History API when JavaScript is enabled and normal page loads otherwise.

@@ -2,12 +2,15 @@
    Image: { type: 'image', src: '/media/photo.jpg', alt: 'Description', caption: '...' }
    Video: { type: 'video', src: '/media/demo.mp4', poster: '/media/poster.jpg', caption: '...' } */
 window.PORTFOLIO = {
-  background: { src: '/media/pixel-mountains.png' },
+  background: { src: '/media/pixel-mountains-optimized.png' },
   aboutCaptionRevision: "upload-75cd209ce6a2",
   aboutPhotos: [
   {
     "type": "image",
     "src": "/media/about-01.jpg",
+    "preview": "/media/about-01-720.jpg",
+    "width": 1179,
+    "height": 884,
     "title": "class-lab.jpg",
     "alt": "A group selfie beside a tall tower made from thin sticks in a lecture hall.",
     "caption": "Making the tallest tower with spaghetti and marshmallows."
@@ -15,6 +18,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-02.jpg",
+    "preview": "/media/about-02-720.jpg",
+    "width": 1536,
+    "height": 2048,
     "title": "open-sauce.jpg",
     "alt": "A large yellow robot-head sculpture marked Open Sauce outside an exhibition hall.",
     "caption": "Visiting open sauce in sf"
@@ -22,6 +28,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-03.jpg",
+    "preview": "/media/about-03-720.jpg",
+    "width": 1536,
+    "height": 2048,
     "title": "yosemite.jpg",
     "alt": "A hiker with a backpack on a rocky trail beside a waterfall and granite cliffs.",
     "caption": "On the way down from half dome"
@@ -29,6 +38,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-04.jpg",
+    "preview": "/media/about-04-720.jpg",
+    "width": 1200,
+    "height": 1600,
     "title": "top-of-half-dome.jpg",
     "alt": "A person seated on a rocky ledge overlooking a deep mountain valley.",
     "caption": "Chilling at the top of half dome"
@@ -36,6 +48,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-05.jpg",
+    "preview": "/media/about-05-720.jpg",
+    "width": 2048,
+    "height": 1152,
     "title": "pacuare-river.jpg",
     "alt": "Kayakers paddling along a river between green forested banks.",
     "caption": "Kayaking down the Pacuare"
@@ -43,6 +58,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-06.jpg",
+    "preview": "/media/about-06-720.jpg",
+    "width": 1152,
+    "height": 2048,
     "title": "waterfall.jpg",
     "alt": "Three people posing on rocks at the foot of a waterfall surrounded by greenery.",
     "caption": "Random waterfall in Costa Rica"
@@ -50,6 +68,9 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-07.jpg",
+    "preview": "/media/about-07-720.jpg",
+    "width": 2048,
+    "height": 1754,
     "title": "on-stage.jpg",
     "alt": "Three musicians performing on stage with a keyboard, bass guitar, and electric guitar.",
     "caption": "Preforming at a charity fundraiser"

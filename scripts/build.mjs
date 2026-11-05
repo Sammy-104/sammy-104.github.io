@@ -11,18 +11,39 @@ export function loadPages() {
   }
   return { pages: context.PortfolioPages, config: context.window.PORTFOLIO };
 }
+const origin = 'https://samuelshaw.ca';
+function structuredData(path) {
+  const context = 'https://schema.org';
+  if (path === '/') return { '@context': context, '@type': 'WebSite', name: 'Samuel Shaw', url: origin + '/' };
+  if (path === '/about/') return {
+    '@context': context,
+    '@type': 'ProfilePage',
+    url: origin + path,
+    mainEntity: {
+      '@type': 'Person',
+      '@id': origin + '/#samuel-shaw',
+      name: 'Samuel Shaw',
+      url: origin + '/',
+      sameAs: ['https://github.com/Sammy-104', 'https://www.linkedin.com/in/samuel-robert-shaw/']
+    }
+  };
+}
+
 export function documentFor(result) {
+  const schema = structuredData(result.canonicalPath);
+  const schemaTag = schema ? '  <script type="application/ld+json">' + JSON.stringify(schema) + '</script>\n' : '';
   const escape = value => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return fs.readFileSync(new URL('scripts/page-template.html', root), 'utf8')
     .replace(/src="\/(content|pages|app)\.js"/g, (_, name) => {
       const revision = createHash('sha256').update(fs.readFileSync(new URL(name + '.js', root))).digest('hex').slice(0, 12);
       return 'src="/' + name + '.js?v=' + revision + '"';
     })
+    .replace('</head>', () => schemaTag + '</head>')
     .replace(/<title>.*?<\/title>/, () => '<title>' + escape(result.title) + '</title>')
     .replace(/<meta name="description" content="[^"]*">/, () => '<meta name="description" content="' + escape(result.description) + '">')
     .replace(/<link rel="canonical" href="[^"]*">/, () => result.notFound ? '<meta name="robots" content="noindex">' : '<link rel="canonical" href="https://samuelshaw.ca' + result.canonicalPath + '">')
     .replace(/<a href="([^\"]*)" data-nav="([^\"]*)">/g, (tag, href, page) => page === result.page ? tag.replace('>', ' aria-current="page">') : tag)
-    .replace('<main id="main" tabindex="-1"></main>', () => '<main id="main" tabindex="-1" data-page="' + result.page + '">' + result.html + '</main>');
+    .replace('<main id="main" tabindex="-1"></main>', () => '<main id="main" tabindex="-1" data-page="' + result.page + '" data-route="' + result.canonicalPath + '">' + result.html + '</main>');
 }
 export function build() {
   const { pages, config } = loadPages();
