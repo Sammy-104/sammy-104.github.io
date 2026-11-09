@@ -36,12 +36,21 @@ jobs:
             esac
             npx --yes lighthouse "$url" --form-factor=mobile --chrome-flags="--headless" --output=json --output=html --output-path="reports/$page" --quiet || true
           done
+      - name: Compare old About on the same test server
+        shell: bash
+        run: |
+          git fetch --depth=1 origin 52e733c537611a45f9a568d685d4de84e8341334
+          mkdir -p /tmp/baseline
+          git archive FETCH_HEAD | tar -x -C /tmp/baseline
+          python3 -m http.server 8081 --bind 127.0.0.1 --directory /tmp/baseline > /tmp/baseline.log 2>&1 &
+          sleep 1
+          npx --yes lighthouse http://127.0.0.1:8081/about/ --form-factor=mobile --chrome-flags="--headless" --output=json --output-path=reports/about-before.report.json --quiet
       - name: Print measurements and findings
         shell: bash
         run: |
           node <<'NODE'
           const fs = require('fs');
-          for (const page of ['about']) {
+          for (const page of ['about', 'about-before']) {
             const file = 'reports/' + page + '.report.json';
             if (!fs.existsSync(file)) { console.log('AUDIT_RESULT ' + JSON.stringify({page,error:'Report missing'})); continue; }
             const r = JSON.parse(fs.readFileSync(file,'utf8'));
