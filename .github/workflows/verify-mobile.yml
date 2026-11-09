@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir -p reports
           npx --yes lighthouse --version
-          for page in home about vollo; do
+          for page in about; do
             case "$page" in
               home) url="http://127.0.0.1:8080/" ;;
               about) url="http://127.0.0.1:8080/about/" ;;
@@ -41,12 +41,13 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          for (const page of ['home', 'about', 'vollo']) {
+          for (const page of ['about']) {
             const file = 'reports/' + page + '.report.json';
             if (!fs.existsSync(file)) { console.log('AUDIT_RESULT ' + JSON.stringify({page,error:'Report missing'})); continue; }
             const r = JSON.parse(fs.readFileSync(file,'utf8'));
             const metrics = Object.fromEntries(['first-contentful-paint','largest-contentful-paint','total-blocking-time','cumulative-layout-shift','speed-index','interactive'].filter(id=>r.audits[id]).map(id=>[id,{value:r.audits[id].numericValue,display:r.audits[id].displayValue}]));
             const findings = Object.entries(r.audits).filter(([id,a])=>a.score!==null && a.score < 0.9).map(([id,a])=>({id,title:a.title,score:a.score,display:a.displayValue,savings:a.details?.overallSavingsMs,items:Array.isArray(a.details?.items)?a.details.items.slice(0,5):a.details?.items}));
+            console.log('LCP_DETAIL ' + JSON.stringify({page,lcp:r.audits['lcp-breakdown-insight'],discovery:r.audits['lcp-discovery-insight'],requests:r.audits['network-requests']?.details?.items?.filter(x=>/webp|styles.css/.test(x.url))}));
             console.log('AUDIT_RESULT ' + JSON.stringify({page,url:r.finalDisplayedUrl,version:r.lighthouseVersion,fetchTime:r.fetchTime,runtimeError:r.runtimeError,warnings:r.runWarnings,settings:r.configSettings,categories:Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score])),metrics,findings}));
           }
           NODE
