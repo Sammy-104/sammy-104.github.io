@@ -185,10 +185,11 @@
     canvas.dataset.renderer='fallback';
     renderer=createRenderer(canvas,{now:()=>performance.now(),schedule:(fn,delay)=>setTimeout(fn,delay),cancel:id=>clearTimeout(id),activeInterval:1000/30});
     state();if(setup)resize();
+    if (!image.src) image.src = window.PORTFOLIO.background.src;
     if(!motion.matches)renderer.update({type:'pointer',...pointer});
   }
   // Blob workers also keep the downloaded, self-contained HTML portable.
-  if(typeof Worker!=='undefined'&&typeof OffscreenCanvas!=='undefined'&&typeof createImageBitmap==='function'&&canvas.transferControlToOffscreen){
+  if(typeof Worker!=='undefined'&&typeof OffscreenCanvas!=='undefined'&&canvas.transferControlToOffscreen){
     let url,transferred=false;
     try{
       const code = `const createRenderer = ${createRenderer.toString()};
@@ -213,10 +214,17 @@
               activeInterval: 1000 / 60,
               onReady: () => self.postMessage({ type: 'ready' })
             });
-          } else if (data.type === 'image') {
-            mountainImage?.close();
-            mountainImage = data.image;
-            if (lastResize) resize(lastResize);
+            fetch(data.imageUrl)
+              .then(response => {
+                if (!response.ok) throw new Error('Mountain image unavailable');
+                return response.blob();
+              })
+              .then(blob => createImageBitmap(blob))
+              .then(bitmap => {
+                mountainImage = bitmap;
+                if (lastResize) resize(lastResize);
+              })
+              .catch(() => self.postMessage({ type: 'image-error' }));
           } else if (data.type === 'resize') {
             resize(data);
           } else {
@@ -226,8 +234,11 @@
       url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
       const offscreen=canvas.transferControlToOffscreen();transferred=true;
       worker.onerror=()=>{fallback(true);return true;};
-      worker.onmessage=({data})=>{if(data.type==='ready'&&startupTimer!==null){clearTimeout(startupTimer);startupTimer=null;}};
-      worker.postMessage({type:'init',canvas:offscreen},[offscreen]);canvas.dataset.renderer='worker';
+      worker.onmessage=({data})=>{
+        if(data.type==='ready'&&startupTimer!==null){clearTimeout(startupTimer);startupTimer=null;}
+        if(data.type==='image-error')fallback(true);
+      };
+      worker.postMessage({type:'init',canvas:offscreen,imageUrl:new URL(window.PORTFOLIO.background.src,location.href).href},[offscreen]);canvas.dataset.renderer='worker';
       startupTimer=setTimeout(()=>{startupTimer=null;if(worker)fallback(true);},1500);
     }catch{fallback(transferred);}
     finally{if(url)URL.revokeObjectURL(url);}
@@ -257,18 +268,9 @@
     state();if(!document.hidden)resize();
   });
   motion.addEventListener('change',state);
-  image.onload = async () => {
+  image.onload = () => {
     loaded = true;
-    if (worker) {
-      try {
-        const bitmap = await createImageBitmap(image);
-        if (worker) worker.postMessage({ type: 'image', image: bitmap }, [bitmap]);
-        else bitmap.close();
-      } catch {
-        fallback(true);
-      }
-    }
     resize();
   };
-  resize();state();image.src=window.PORTFOLIO.background.src;
+  resize();state();if(!worker)image.src=window.PORTFOLIO.background.src;
 })();

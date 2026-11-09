@@ -12,30 +12,30 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Wait for the new public version
+      - name: Confirm the final public version
         run: |
           node <<'NODE'
           (async () => {
             const urls = ['https://samuelshaw.ca/', 'https://samuelshaw.ca/about/', 'https://samuelshaw.ca/projects/vollo/'];
-            for (let attempt=0; attempt<36; attempt++) {
-              const pages = await Promise.all(urls.map(async url => {
+            for (let attempt=0; attempt<48; attempt++) {
+              const checks = await Promise.all(urls.map(async url => {
                 const response = await fetch(url);
-                return response.ok && (await response.text()).includes('styles.css?v=8f426647e774');
+                return response.ok && (await response.text()).includes('background.js?v=855a9baf5d68');
               }));
-              if (pages.every(Boolean)) { console.log('Confirmed updated HTML on all three public URLs'); return; }
+              if (checks.every(Boolean)) { console.log('Verified final public version'); return; }
               await new Promise(resolve => setTimeout(resolve, 5000));
             }
-            throw new Error('Updated public HTML is not available yet');
-          })().catch(error => { console.error(error); process.exitCode = 1; });
+            throw new Error('Final version is not yet public');
+          })().catch(error => { console.error(error); process.exitCode=1; });
           NODE
       - name: Audit public pages with mobile emulation
         shell: bash
         run: |
           mkdir -p reports
           npx --yes lighthouse --version
-          for page in home about vollo; do
+          for page in home-1 home-2 home-3 about vollo; do
             case "$page" in
-              home) url="https://samuelshaw.ca/" ;;
+              home-*) url="https://samuelshaw.ca/" ;;
               about) url="https://samuelshaw.ca/about/" ;;
               vollo) url="https://samuelshaw.ca/projects/vollo/" ;;
             esac
@@ -46,7 +46,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          for (const page of ['home', 'about', 'vollo']) {
+          for (const page of ['home-1', 'home-2', 'home-3', 'about', 'vollo']) {
             const file = 'reports/' + page + '.report.json';
             if (!fs.existsSync(file)) { console.log('AUDIT_RESULT ' + JSON.stringify({page,error:'Report missing'})); continue; }
             const r = JSON.parse(fs.readFileSync(file,'utf8'));
