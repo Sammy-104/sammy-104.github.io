@@ -8,7 +8,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-01.jpg",
-    "preview": "/media/about-01-720.jpg",
+    "previews": [{"src":"/media/about-01-640.webp","width":640},{"src":"/media/about-01-960.webp","width":960}],
     "width": 1179,
     "height": 884,
     "title": "class-lab.jpg",
@@ -18,7 +18,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-02.jpg",
-    "preview": "/media/about-02-720.jpg",
+    "previews": [{"src":"/media/about-02-640.webp","width":640},{"src":"/media/about-02-960.webp","width":960}],
     "width": 1536,
     "height": 2048,
     "title": "open-sauce.jpg",
@@ -28,7 +28,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-03.jpg",
-    "preview": "/media/about-03-720.jpg",
+    "previews": [{"src":"/media/about-03-640.webp","width":640},{"src":"/media/about-03-960.webp","width":960}],
     "width": 1536,
     "height": 2048,
     "title": "yosemite.jpg",
@@ -38,7 +38,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-04.jpg",
-    "preview": "/media/about-04-720.jpg",
+    "previews": [{"src":"/media/about-04-640.webp","width":640},{"src":"/media/about-04-960.webp","width":960}],
     "width": 1200,
     "height": 1600,
     "title": "top-of-half-dome.jpg",
@@ -48,7 +48,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-05.jpg",
-    "preview": "/media/about-05-720.jpg",
+    "previews": [{"src":"/media/about-05-640.webp","width":640},{"src":"/media/about-05-960.webp","width":960}],
     "width": 2048,
     "height": 1152,
     "title": "pacuare-river.jpg",
@@ -58,7 +58,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-06.jpg",
-    "preview": "/media/about-06-720.jpg",
+    "previews": [{"src":"/media/about-06-640.webp","width":640},{"src":"/media/about-06-960.webp","width":960}],
     "width": 1152,
     "height": 2048,
     "title": "waterfall.jpg",
@@ -68,7 +68,7 @@ window.PORTFOLIO = {
   {
     "type": "image",
     "src": "/media/about-07.jpg",
-    "preview": "/media/about-07-720.jpg",
+    "previews": [{"src":"/media/about-07-640.webp","width":640},{"src":"/media/about-07-960.webp","width":960}],
     "width": 2048,
     "height": 1754,
     "title": "on-stage.jpg",
@@ -94,14 +94,14 @@ window.PORTFOLIO = {
         'Built a clearer way to browse the music and find the details of a score.'
       ],
       media: [
-        { type: 'image', src: '/media/library-catalogue.png', title: 'catalogue.png', alt: 'Digital Music Library catalogue with score thumbnails, titles, composers, library numbers, and collection filters.', caption: 'The catalogue: scores, composers, and filters in one place.' },
-        { type: 'image', src: '/media/library-login.png', title: 'login.png', alt: 'Digital Music Library sign-in screen with the music library logo and username and password fields.', caption: 'The sign-in screen.' }
+        { type: 'image', src: '/media/library-catalogue.png', width: 1897, height: 1078, previews: [{"src":"/media/library-catalogue-640.webp","width":640},{"src":"/media/library-catalogue-960.webp","width":960}], title: 'catalogue.png', alt: 'Digital Music Library catalogue with score thumbnails, titles, composers, library numbers, and collection filters.', caption: 'The catalogue: scores, composers, and filters in one place.' },
+        { type: 'image', src: '/media/library-login.png', width: 1265, height: 850, previews: [{"src":"/media/library-login-640.webp","width":640},{"src":"/media/library-login-960.webp","width":960}], title: 'login.png', alt: 'Digital Music Library sign-in screen with the music library logo and username and password fields.', caption: 'The sign-in screen.' }
       ],
       video: null
     },
     drift: {
       name: 'Vollo',
-      logo: { src: '/media/vollo-microsoft-store.png' },
+      logo: { src: '/media/vollo-logo.webp' },
       filename: 'vollo',
       category: 'app / file sharing',
       description: 'Files and messages. From your device to theirs.',
@@ -118,10 +118,10 @@ window.PORTFOLIO = {
         'Aim for a predictable experience across devices and operating systems.'
       ],
       media: [
-        { type: 'image', src: '/media/drift-receive-dark.png', title: 'receive-dark.png', alt: 'Vollo receive screen in dark mode, showing incoming files and messages.', caption: 'Incoming files and messages, in dark mode.' },
-        { type: 'image', src: '/media/vollo-microsoft-store.png', title: 'microsoft-store.png', alt: 'Vollo on the Microsoft Store, showing its blue logo, Drift Development publisher, app description, Open button, and screenshots.', caption: 'Vollo is available on the Microsoft Store.' }
+        { type: 'image', src: '/media/drift-receive-dark.png', width: 2048, height: 1152, previews: [{"src":"/media/drift-receive-dark-640.webp","width":640},{"src":"/media/drift-receive-dark-960.webp","width":960}], title: 'receive-dark.png', alt: 'Vollo receive screen in dark mode, showing incoming files and messages.', caption: 'Incoming files and messages, in dark mode.' },
+        { type: 'image', src: '/media/vollo-microsoft-store.png', width: 1917, height: 1017, previews: [{"src":"/media/vollo-microsoft-store-640.webp","width":640},{"src":"/media/vollo-microsoft-store-960.webp","width":960}], title: 'microsoft-store.png', alt: 'Vollo on the Microsoft Store, showing its blue logo, Drift Development publisher, app description, Open button, and screenshots.', caption: 'Vollo is available on the Microsoft Store.' }
       ],
-      video: { type: 'video', src: '/media/drift-promo.mp4', title: 'vollo-promo.mp4', poster: '/media/drift-receive-dark.png', caption: 'A quick look at the app.' }
+      video: { type: 'video', src: '/media/drift-promo.mp4', title: 'vollo-promo.mp4', poster: '/media/drift-receive-dark-960.webp', caption: 'A quick look at the app.' }
     }
   }
 };

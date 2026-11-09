@@ -184,14 +184,45 @@
     if(replace){const replacement=canvas.cloneNode(false);canvas.replaceWith(replacement);canvas=replacement;}
     canvas.dataset.renderer='fallback';
     renderer=createRenderer(canvas,{now:()=>performance.now(),schedule:(fn,delay)=>setTimeout(fn,delay),cancel:id=>clearTimeout(id),activeInterval:1000/30});
-    state();if(setup)renderer.update(setup);
+    state();if(setup)resize();
     if(!motion.matches)renderer.update({type:'pointer',...pointer});
   }
   // Blob workers also keep the downloaded, self-contained HTML portable.
-  if(typeof Worker!=='undefined'&&canvas.transferControlToOffscreen){
+  if(typeof Worker!=='undefined'&&typeof OffscreenCanvas!=='undefined'&&typeof createImageBitmap==='function'&&canvas.transferControlToOffscreen){
     let url,transferred=false;
     try{
-      const code='const createRenderer='+createRenderer.toString()+';let renderer;self.onmessage=({data})=>{if(data.type==="init"){renderer=createRenderer(data.canvas,{now:()=>performance.now(),schedule:(fn,delay)=>setTimeout(fn,delay),cancel:id=>clearTimeout(id),activeInterval:1000/60,onReady:()=>self.postMessage({type:"ready"})});}else renderer.update(data);};';
+      const code = `const createRenderer = ${createRenderer.toString()};
+        let renderer, mountainImage, lastResize;
+        function resize(data) {
+          lastResize = data;
+          const sample = new OffscreenCanvas(data.columns, data.rows);
+          const context = sample.getContext('2d', { willReadFrequently: true });
+          context.imageSmoothingEnabled = false;
+          if (mountainImage) {
+            const imageRows = Math.round(data.rows * (data.width < 720 ? .76 : .94));
+            context.drawImage(mountainImage, 0, data.rows - imageRows, data.columns, imageRows);
+          }
+          renderer.update({ ...data, pixels: context.getImageData(0, 0, data.columns, data.rows).data });
+        }
+        self.onmessage = ({ data }) => {
+          if (data.type === 'init') {
+            renderer = createRenderer(data.canvas, {
+              now: () => performance.now(),
+              schedule: (fn, delay) => setTimeout(fn, delay),
+              cancel: id => clearTimeout(id),
+              activeInterval: 1000 / 60,
+              onReady: () => self.postMessage({ type: 'ready' })
+            });
+          } else if (data.type === 'image') {
+            mountainImage?.close();
+            mountainImage = data.image;
+            if (lastResize) resize(lastResize);
+          } else if (data.type === 'resize') {
+            resize(data);
+          } else {
+            renderer.update(data);
+          }
+        };`;
       url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));worker=new Worker(url);
       const offscreen=canvas.transferControlToOffscreen();transferred=true;
       worker.onerror=()=>{fallback(true);return true;};
@@ -205,9 +236,14 @@
     resizeFrame=0;
     const width=window.innerWidth,height=window.innerHeight;
     const columns=Math.max(64,Math.min(256,Math.round(width/(width<720?6:8)))),rows=Math.ceil(height/(width/columns));
+    setup = { type: 'resize', width, height, columns, rows };
+    if (worker) {
+      worker.postMessage(setup);
+      return;
+    }
     sample.width=columns;sample.height=rows;sampleCtx.imageSmoothingEnabled=false;sampleCtx.clearRect(0,0,columns,rows);
     if(loaded){const imageRows=Math.round(rows*(width<720?.76:.94));sampleCtx.drawImage(image,0,rows-imageRows,columns,imageRows);}
-    setup={type:'resize',width,height,columns,rows,pixels:sampleCtx.getImageData(0,0,columns,rows).data};send(setup);
+    renderer.update({ ...setup, pixels: sampleCtx.getImageData(0,0,columns,rows).data });
   }
   window.addEventListener('pointermove',event=>{
     if(motion.matches||document.hidden)return;
@@ -221,6 +257,18 @@
     state();if(!document.hidden)resize();
   });
   motion.addEventListener('change',state);
-  image.onload=()=>{loaded=true;resize();};
+  image.onload = async () => {
+    loaded = true;
+    if (worker) {
+      try {
+        const bitmap = await createImageBitmap(image);
+        if (worker) worker.postMessage({ type: 'image', image: bitmap }, [bitmap]);
+        else bitmap.close();
+      } catch {
+        fallback(true);
+      }
+    }
+    resize();
+  };
   resize();state();image.src=window.PORTFOLIO.background.src;
 })();

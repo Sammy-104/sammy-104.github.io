@@ -19,7 +19,7 @@
     return '<div class="caption-editor"><label for="photo-title-' + index + '">Window label<input id="photo-title-' + index + '" type="text" maxlength="80" data-caption-index="' + index + '" data-caption-field="title" value="' + escape(photo.title || '') + '"></label><label for="photo-caption-' + index + '">Caption <span class="caption-optional">(optional)</span><textarea id="photo-caption-' + index + '" maxlength="300" rows="2" data-caption-index="' + index + '" data-caption-field="caption" placeholder="Write a caption...">' + escape(photo.caption || '') + '</textarea></label></div>';
   }
   function aboutPhotoWindow(index) {
-    const photo = aboutPhoto(index);
+    const photo = { ...aboutPhoto(index), priority: index === 0 };
     let html = mediaWindow('photo-' + String(index + 1).padStart(2, '0') + '.jpg', photo, 'about-photo about-photo-' + (index + 1));
     if (editingCaptions) html = html.replace('</section>', captionFields(index) + '</section>');
     return html;
@@ -35,10 +35,16 @@
   function mediaWindow(title, item, className = '', kind = 'photo') {
     let content;
     if (item?.type === 'image' && item.src) {
-      const responsive = item.preview
-        ? ` srcset="${escape(item.preview)} 720w, ${escape(item.src)} ${item.width}w" sizes="(max-width: 720px) calc(100vw - 52px), 370px" width="${item.width}" height="${item.height}"`
+      const dimensions = item.width && item.height ? ` width="${item.width}" height="${item.height}"` : '';
+      const candidates = item.previews ? [...item.previews, { src: item.src, width: item.width }] : [];
+      const sizes = className.includes('about-photo')
+        ? '(max-width: 720px) calc(100vw - 52px), (max-width: 960px) calc((100vw - 84px) / 2), 350px'
+        : '(max-width: 720px) calc(100vw - 52px), 600px';
+      const responsive = candidates.length
+        ? ` srcset="${candidates.map(image => escape(image.src) + ' ' + image.width + 'w').join(', ')}" sizes="${sizes}"`
         : '';
-      content = `<figure class="media-figure"><button class="media-image-link" type="button" data-full-image="${escape(item.src)}" aria-label="Open image full size: ${escape(item.alt || item.title || title)}"><img src="${escape(item.src)}"${responsive} alt="${escape(item.alt || '')}" loading="lazy" decoding="async"><span class="image-open-hint">open full size &#8599;</span></button>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
+      const loading = item.priority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+      content = `<figure class="media-figure"><button class="media-image-link" type="button" data-full-image="${escape(item.src)}" aria-label="Open full size: ${escape(item.alt || item.title || title)}"><img src="${escape(item.src)}"${responsive}${dimensions} alt="${escape(item.alt || '')}" ${loading} decoding="async"><span class="image-open-hint">open full size &#8599;</span></button>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
     } else if (item?.type === 'video' && item.src) {
       content = `<figure class="media-figure"><video controls preload="metadata" ${item.poster ? `poster="${escape(item.poster)}"` : ''}><source src="${escape(item.src)}" type="video/mp4">Your browser cannot play this video.</video>${item.caption ? `<figcaption>${escape(item.caption)}</figcaption>` : ''}</figure>`;
     } else {
@@ -75,7 +81,7 @@
 
   function projectCard(id) {
     const p = config.projects[id];
-    return frame(`${p.filename}.project`, `<div class="project-card-body"><div class="card-head">${projectGlyph(id)}<span class="small-label">${escape(p.category)}</span></div><h2><a href="/projects/${id === 'drift' ? 'vollo' : id}/">${escape(p.name)}</a></h2><p>${escape(p.description)}</p><a class="card-preview has-image" href="/projects/${id === 'drift' ? 'vollo' : id}/" aria-label="View ${escape(p.name)}"><img src="${escape(p.media[0].src)}" alt="${escape(p.media[0].alt)}" loading="lazy" decoding="async"></a><a class="text-link" href="/projects/${id === 'drift' ? 'vollo' : id}/">take a look ${arrow}</a></div>`, `project-card ${id}-card`);
+    return frame(`${p.filename}.project`, `<div class="project-card-body"><div class="card-head">${projectGlyph(id)}<span class="small-label">${escape(p.category)}</span></div><h2><a href="/projects/${id === 'drift' ? 'vollo' : id}/">${escape(p.name)}</a></h2><p>${escape(p.description)}</p><a class="card-preview has-image" href="/projects/${id === 'drift' ? 'vollo' : id}/" aria-label="View ${escape(p.name)}"><img src="${escape(p.media[0].previews?.[1]?.src || p.media[0].src)}" width="${p.media[0].width}" height="${p.media[0].height}" alt="${escape(p.media[0].alt)}" loading="lazy" decoding="async"></a><a class="text-link" href="/projects/${id === 'drift' ? 'vollo' : id}/">take a look ${arrow}</a></div>`, `project-card ${id}-card`);
   }
 
   function projects() {

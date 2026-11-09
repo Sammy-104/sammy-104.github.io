@@ -15,6 +15,6 @@
     "dev": "npm run build && npx --yes serve .",
     "start": "npm run build && npx --yes serve .",
     "build": "node scripts/build.mjs",
-    "test": "node --test scripts/site.test.mjs"
+    "test": "node --test scripts/site.test.mjs scripts/background.test.mjs"
   }
 }
