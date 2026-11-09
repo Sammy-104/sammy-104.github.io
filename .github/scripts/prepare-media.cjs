@@ -8,7 +8,7 @@ const sharp = require(process.env.SHARP_PATH);
     const oriented = metadata.autoOrient || {width:metadata.width,height:metadata.height};
     for (const width of [640,960]) {
       const output = name.replace(/\.[^.]+$/, '-') + width + '.webp';
-      const buffer = await sharp(input).autoOrient().resize({width,withoutEnlargement:true}).webp({quality:88,effort:6}).toBuffer();
+      const buffer = await sharp(input).autoOrient().resize({width,withoutEnlargement:true}).webp({quality: name.startsWith('about-') ? 80 : 88,effort:6}).toBuffer();
       for (let offset=0,index=0;offset<buffer.toString('base64').length;offset+=16000,index++) {
         console.log('MEDIA_CHUNK '+JSON.stringify({name:output,index,data:buffer.toString('base64').slice(offset,offset+16000)}));
       }

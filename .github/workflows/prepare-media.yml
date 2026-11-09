@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Encode responsive media
+      - name: Encode responsive media with tuned photo compression
         run: |
           npm install --prefix "$RUNNER_TEMP/image-tools" sharp
           SHARP_PATH="$RUNNER_TEMP/image-tools/node_modules/sharp" node .github/scripts/prepare-media.cjs
