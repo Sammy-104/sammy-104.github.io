@@ -1,4 +1,4 @@
-name: Mobile Lighthouse audit
+name: Final live mobile Lighthouse audit
 on:
   push:
     branches: [audit/mobile-pagespeed-20261109]
@@ -12,6 +12,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Wait for the new public version
+        run: |
+          node <<'NODE'
+          (async () => {
+            const urls = ['https://samuelshaw.ca/', 'https://samuelshaw.ca/about/', 'https://samuelshaw.ca/projects/vollo/'];
+            for (let attempt=0; attempt<36; attempt++) {
+              const pages = await Promise.all(urls.map(async url => {
+                const response = await fetch(url);
+                return response.ok && (await response.text()).includes('styles.css?v=8f426647e774');
+              }));
+              if (pages.every(Boolean)) { console.log('Confirmed updated HTML on all three public URLs'); return; }
+              await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+            throw new Error('Updated public HTML is not available yet');
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE
       - name: Audit public pages with mobile emulation
         shell: bash
         run: |
@@ -35,7 +51,7 @@ jobs:
             if (!fs.existsSync(file)) { console.log('AUDIT_RESULT ' + JSON.stringify({page,error:'Report missing'})); continue; }
             const r = JSON.parse(fs.readFileSync(file,'utf8'));
             const metrics = Object.fromEntries(['first-contentful-paint','largest-contentful-paint','total-blocking-time','cumulative-layout-shift','speed-index','interactive'].filter(id=>r.audits[id]).map(id=>[id,{value:r.audits[id].numericValue,display:r.audits[id].displayValue}]));
-            const findings = Object.entries(r.audits).filter(([id,a])=>a.score!==null && a.score < 0.9).map(([id,a])=>({id,title:a.title,score:a.score,display:a.displayValue,savings:a.details?.overallSavingsMs,items:a.details?.items?.slice(0,5)}));
+            const findings = Object.entries(r.audits).filter(([id,a])=>a.score!==null && a.score < 0.9).map(([id,a])=>({id,title:a.title,score:a.score,display:a.displayValue,savings:a.details?.overallSavingsMs,items:Array.isArray(a.details?.items)?a.details.items.slice(0,5):a.details?.items}));
             console.log('AUDIT_RESULT ' + JSON.stringify({page,url:r.finalDisplayedUrl,version:r.lighthouseVersion,fetchTime:r.fetchTime,runtimeError:r.runtimeError,warnings:r.runWarnings,settings:r.configSettings,categories:Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score])),metrics,findings}));
           }
           NODE

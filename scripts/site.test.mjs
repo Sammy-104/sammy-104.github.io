@@ -44,6 +44,23 @@ test('unknown routes have an error document and are excluded from the sitemap', 
   assert.ok(!sitemap.includes('404'));
 });
 
+test('image delivery reserves space, prioritizes the first About photo and keeps original lightbox files', () => {
+  const about = pages.render(config, '/about/').html;
+  assert.equal((about.match(/loading="eager" fetchpriority="high"/g) || []).length, 1);
+  assert.equal((about.match(/loading="lazy"/g) || []).length, 6);
+  assert.match(about, /data-full-image="\/media\/about-01.jpg"/);
+  assert.match(about, /srcset="\/media\/about-01-640.webp 640w, \/media\/about-01-960.webp 960w/);
+  for (const route of ['/about/', '/projects/vollo/', '/projects/library/']) {
+    const html = pages.render(config, route).html;
+    for (const [tag] of html.matchAll(/<img\b[^>]*>/g)) {
+      assert.match(tag, /width="\d+" height="\d+"/);
+    }
+    assert.ok(!html.includes('aria-label="Open image full size:'));
+    assert.match(html, /aria-label="Open full size:/);
+  }
+  assert.equal(config.projects.drift.logo.src, '/media/vollo-logo.webp');
+});
+
 function browser(pathname, hash = '', { prerendered = false, savedCaptions = null } = {}) {
   const listeners = { document: {}, window: {}, main: {} };
   const main = { innerHTML: '', dataset: {}, focus() {}, addEventListener(n, fn) { (listeners.main[n] ||= []).push(fn); } };
