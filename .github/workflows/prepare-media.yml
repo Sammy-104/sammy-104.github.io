@@ -1,0 +1,26 @@
+name: Prepare mobile media and profile long tasks
+on:
+  push:
+    branches: [audit/mobile-pagespeed-fixes-20261109]
+    paths: [.github/workflows/prepare-media.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Encode responsive media
+        run: |
+          npm install --prefix "$RUNNER_TEMP/image-tools" sharp
+          SHARP_PATH="$RUNNER_TEMP/image-tools/node_modules/sharp" node .github/scripts/prepare-media.cjs
+      - name: Profile live Vollo long tasks
+        run: |
+          npx --yes lighthouse https://samuelshaw.ca/projects/vollo/ --only-categories=performance --form-factor=mobile --chrome-flags="--headless" --output=json --output-path=/tmp/vollo-before.json --quiet
+          node -e "const r=require('/tmp/vollo-before.json');for(const id of ['long-tasks','bootup-time','mainthread-work-breakdown']) console.log('TASK_PROFILE '+JSON.stringify({id,data:r.audits[id]}));"
