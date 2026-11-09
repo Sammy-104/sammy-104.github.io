@@ -34,10 +34,11 @@ export function documentFor(result) {
   const schemaTag = schema ? '  <script type="application/ld+json">' + JSON.stringify(schema) + '</script>\n' : '';
   const escape = value => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return fs.readFileSync(new URL('scripts/page-template.html', root), 'utf8')
-    .replace(/src="\/(content|pages|app)\.js"/g, (_, name) => {
+    .replace(/src="\/(content|pages|app|background)\.js"/g, (_, name) => {
       const revision = createHash('sha256').update(fs.readFileSync(new URL(name + '.js', root))).digest('hex').slice(0, 12);
       return 'src="/' + name + '.js?v=' + revision + '"';
     })
+    .replace('href="/styles.css"', () => 'href="/styles.css?v=' + createHash('sha256').update(fs.readFileSync(new URL('styles.css', root))).digest('hex').slice(0, 12) + '"')
     .replace('</head>', () => schemaTag + '</head>')
     .replace(/<title>.*?<\/title>/, () => '<title>' + escape(result.title) + '</title>')
     .replace(/<meta name="description" content="[^"]*">/, () => '<meta name="description" content="' + escape(result.description) + '">')
