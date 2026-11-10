@@ -69,7 +69,7 @@
       'Studying Mechatronics Engineering at the University of Waterloo.',
       'Into software, robotics, and learning how things work.',
       'Searching for spring 2027 internships.',
-      'Currently working on Vollo, a file and message sharing app.'
+      'Currently working on an autonomous Tower of Hanoi solver, a 150 g “fairyweight” battle bot, and an autonomous RC car.'
     ])}<a class="button" href="/about/">more about me <span aria-hidden="true">↗</span></a></div>`, 'intro-window', 'Introduction')}${recent()}</div>`;
   }
 
