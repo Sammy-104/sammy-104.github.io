@@ -118,7 +118,7 @@ test('normal navigation and Back update content, metadata and active tab; modifi
   assert.ok(!click('/about/', { ctrlKey: true }).prevented);
   assert.ok(!click('/projects/', { button: 1 }).prevented);
   assert.ok(!click('#main').prevented);
-  assert.ok(!click('https://github.com/Sammy-104').prevented);
+  assert.ok(!click('https://github.com/samuelrshaw').prevented);
   b.location.pathname = b.stack.pop(); b.listeners.window.popstate();
   assert.ok(b.main.innerHTML.includes(expected['/']));
   assert.equal(b.metadata.canonical.href, 'https://samuelshaw.ca/');

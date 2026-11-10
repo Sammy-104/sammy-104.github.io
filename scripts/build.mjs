@@ -24,7 +24,7 @@ function structuredData(path) {
       '@id': origin + '/#samuel-shaw',
       name: 'Samuel Shaw',
       url: origin + '/',
-      sameAs: ['https://github.com/Sammy-104', 'https://www.linkedin.com/in/samuel-robert-shaw/']
+      sameAs: ['https://github.com/samuelrshaw', 'https://www.linkedin.com/in/samuel-robert-shaw/']
     }
   };
 }
