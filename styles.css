@@ -151,4 +151,9 @@ body{background:#d9dcd4;background-image:none;isolation:isolate}
 }
 
 .current-projects{border-top:1px solid var(--lavender);padding-top:14px}
+.current-projects > .small-label{font-size:15px}
 .intro-body .current-projects .notes-list{margin-top:8px}
+
+@media(max-width:720px){
+  .current-projects > .small-label{font-size:14px}
+}
