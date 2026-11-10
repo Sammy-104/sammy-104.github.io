@@ -149,3 +149,6 @@ body{background:#d9dcd4;background-image:none;isolation:isolate}
 .caption-status {
   display: none !important;
 }
+
+.current-projects{border-top:1px solid var(--lavender);padding-top:14px}
+.intro-body .current-projects .notes-list{margin-top:8px}

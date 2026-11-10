@@ -68,9 +68,12 @@
     return `<div class="desktop home-desktop">${frame('hello.txt', `<div class="intro-body"><h1>hey, i'm <span class="name-highlight">sam.</span></h1>${bullets([
       'Studying Mechatronics Engineering at the University of Waterloo.',
       'Into software, robotics, and learning how things work.',
-      'Searching for spring 2027 internships.',
-      'Currently working on an autonomous Tower of Hanoi solver, a 150 g “fairyweight” battle bot, and an autonomous RC car.'
-    ])}<a class="button" href="/about/">more about me <span aria-hidden="true">↗</span></a></div>`, 'intro-window', 'Introduction')}${recent()}</div>`;
+      'Searching for spring 2027 internships.'
+    ])}<section class="current-projects" aria-labelledby="current-projects-title"><h2 class="small-label" id="current-projects-title">currently working on</h2>${bullets([
+      'Autonomous Tower of Hanoi solver',
+      '150 g “fairyweight” battle bot',
+      'Autonomous RC car'
+    ])}</section><a class="button" href="/about/">more about me <span aria-hidden="true">↗</span></a></div>`, 'intro-window', 'Introduction')}${recent()}</div>`;
   }
 
 
